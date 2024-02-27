@@ -1,6 +1,6 @@
 # Trusted Application Pipeline Software Template
 
-This application, ${{ parameters.name }}, was created from a Trusted Application Pipeline Software Template.
+This application, ${{ values.name }}, was created from a Trusted Application Pipeline Software Template.
 
 The software templates create a new source and gitops deployment repositories with a sample source. 
 
@@ -18,8 +18,8 @@ The default application  will be found in the following namespaces. Applications
 |  Namespace   |  Description   |  
 | -------- | -------- |  
 
-| ${{ parameters.name }}-development | The default application during development. Every build will be deployed to this namespace for testing. |
+| ${{ values.namespace }}-development | The default application during development. Every build will be deployed to this namespace for testing. |
 
-| ${{ parameters.name }}-stage | The staging namespace for this application. Promotion from development to stage is manual via an update to the [gitops repository](${{ values.repoURL }} ) in the components/${{ parameters.name }}/overlays/prod directory | 
+| ${{ values.namespace }}-stage | The staging namespace for this application. Promotion from development to stage is manual via an update to the [gitops repository](${{ values.repoURL }} ) in the components/${{ values.name }}/overlays/prod directory | 
 
-| ${{ parameters.name }}-prod | The production namespace for this application. Promotion from stage to production is manual via an update to the [gitops repository](${{ values.repoURL }} ) in the components/${{ parameters.name }}/overlays/prod directory | 
+| ${{ values.namespace }}-prod | The production namespace for this application. Promotion from stage to production is manual via an update to the [gitops repository](${{ values.repoURL }} ) in the components/${{ values.name }}/overlays/prod directory | 
