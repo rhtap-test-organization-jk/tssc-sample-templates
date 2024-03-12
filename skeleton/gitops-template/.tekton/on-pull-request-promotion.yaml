@@ -1,0 +1,40 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: ${{ values.name }}-on-pull-request-promotion
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]" 
+    pipelinesascode.tekton.dev/pipeline: ".tekton/promotion-flow-pipeline.yaml"
+    pipelinesascode.tekton.dev/task-0: ".tekton/handle-promote-action.yaml" 
+    pipelinesascode.tekton.dev/task-1: "https://raw.githubusercontent.com/redhat-appstudio/tssc-sample-pipelines/main/pac/tasks/git-clone.yaml"
+  labels:
+    argocd/app-name: ${{ values.name }}
+    janus-idp.io/tekton: ${{ values.name }}
+    backstage.io/kubernetes-id: ${{ values.name }}
+    backstage.io/kubernetes-namespace: ${{ values.namespace }}
+    app.kubernetes.io/part-of: ${{ values.name }}
+spec:
+  params:
+  - name: git-url
+    value: '{{repo_url}}'   
+  - name: revision
+    value: '{{revision}}'    
+  - name: target-branch
+    value: '{{target_branch}}'   
+  - name: commit-message 
+    value: '{{body.pull_request.body}}'
+  pipelineRef:
+    name: promotion-flow-pipeline 
+  workspaces:
+    - name: git-auth
+      secret:
+        secretName: "{{ git_auth_secret }}"
+    - name: workspace
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi

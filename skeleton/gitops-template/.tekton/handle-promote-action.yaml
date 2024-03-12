@@ -1,0 +1,158 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: handle-promote-action
+spec:
+  description: Task to promote between environments.
+  params:
+    - name: gitops-repo-url
+      type: string
+      description: URL of gitops repository to update with the newly built image.
+    - name: revision
+      value: $(params.revision) 
+    - name: target-branch
+      value: $(params.target-branch) 
+    - name: commit-message
+      type: string
+      description: Pass "/promote development" or "/promote stage"
+    - name: gitops-auth-secret-name
+      type: string
+      default: gitops-auth-secret
+      description: |
+        Secret of basic-auth type containing credentials to commit into gitops repository.
+  workspaces:
+  - description: The git repo will be cloned onto the volume backing this Workspace.
+    name: output
+  volumes:
+    - name: gitops-auth-secret
+      secret:
+        secretName: $(params.gitops-auth-secret-name)
+        optional: true
+  steps:
+  - name: get-images-per-env  
+    image: quay.io/redhat-appstudio/appstudio-utils:d8a93bf5650424a4f20ee065578609792d70af1c
+    script: |
+      #!/bin/bash
+      #separate image to access yq command 
+      cd /workspace/output/source
+      COMPONENT_NAME=$(yq .metadata.name application.yaml)
+      IMG_PATH=".spec.template.spec.containers[0].image"
+      DEV_IMAGE=$(yq "$IMG_PATH" components/${COMPONENT_NAME}/overlays/development/deployment-patch.yaml)
+      STAGE_IMAGE=$(yq "$IMG_PATH" components/${COMPONENT_NAME}/overlays/stage/deployment-patch.yaml)
+      PROD_IMAGE=$(yq "$IMG_PATH" components/${COMPONENT_NAME}/overlays/prod/deployment-patch.yaml)
+
+      COMPONENT_IMAGE_ENV=/workspace/output/component-images.env
+      rm -rf $COMPONENT_IMAGE_ENV
+      touch $COMPONENT_IMAGE_ENV
+      echo "COMPONENT_NAME=$COMPONENT_NAME" >>$COMPONENT_IMAGE_ENV
+      echo "DEV_IMAGE=$DEV_IMAGE" >>$COMPONENT_IMAGE_ENV
+      echo "STAGE_IMAGE=$STAGE_IMAGE" >>$COMPONENT_IMAGE_ENV
+      echo "PROD_IMAGE=$PROD_IMAGE" >>$COMPONENT_IMAGE_ENV
+      cat >>$COMPONENT_IMAGE_ENV
+  - name: promotion-step
+    image: quay.io/redhat-appstudio/task-toolset@sha256:931a9f7886586391ccb38d33fd15a47eb03568f9b19512b0a57a56384fa52a3c
+    volumeMounts:
+      - name: gitops-auth-secret
+        mountPath: /gitops-auth-secret
+    env:
+      - name: PARAM_GITOPS_REPO_URL
+        value: $(params.gitops-repo-url) 
+      - name: COMMIT_MESSAGE
+        value: $(params.commit-message)  
+    script: |
+      if test -f /gitops-auth-secret/password ; then
+        gitops_repo_url=${PARAM_GITOPS_REPO_URL}
+        remote_without_protocol=${gitops_repo_url#'https://'}
+
+        password=$(cat /gitops-auth-secret/password)
+        if test -f /gitops-auth-secret/username ; then
+          username=$(cat /gitops-auth-secret/username)
+          echo "https://${username}:${password})@${hostname}" > "${HOME}/.git-credentials"
+          origin_with_auth=https://${username}:${password}@${remote_without_protocol}.git
+        else
+          origin_with_auth=https://${password}@${remote_without_protocol}.git
+        fi
+      else
+        echo "git credentials to push into gitops repository ${PARAM_GITOPS_REPO_URL} is not configured."
+        echo "gitops repository is not updated automatically."
+        echo "You can update gitops repository with the new image: ${PARAM_IMAGE} manually"
+        echo "TODO: configure git credentials to update gitops repository."
+        exit 0
+      fi
+      source /workspace/output/component-images.env
+      echo 
+      echo "COMPONENT_NAME=$COMPONENT_NAME" 
+      echo "DEV_IMAGE:   $DEV_IMAGE" 
+      echo "STAGE_IMAGE: $STAGE_IMAGE" 
+      echo "PROD_IMAGE:  $PROD_IMAGE" 
+      echo "-------------------------------"
+
+      echo "Commit Message:"
+      echo "$COMMIT_MESSAGE"
+      echo "-------"
+      command=$(echo $COMMIT_MESSAGE | head -n1)
+      echo "Command extracted from commit message body:"
+      echo "$command"
+      echo "-------" 
+      
+      
+      echo "Target branch $(params.target-branch)" 
+      echo "-------" 
+       
+
+      case $command in 
+        "/promote development")
+          SRC_OVERLAY=development
+          DST_OVERLAY=stage
+          ;;
+        "/promote dev")
+          SRC_OVERLAY=development
+          DST_OVERLAY=stage
+          ;; 
+        "/promote stage")
+          SRC_OVERLAY=stage
+          DST_OVERLAY=prod
+          ;;  
+        *)
+          echo "No promotion command found in commit or pull-request message body."
+          echo "Command must be in first line message body."
+          echo "Valid commands: are /promote <dev | development | stage>." 
+          exit 0
+          ;;
+      esac 
+
+      # command is valid, perform copy
+      echo "Repository:  $PARAM_GITOPS_REPO_URL"
+      echo "Component: $COMPONENT_NAME"  
+      echo "Command: $command" 
+      echo "Promotion from: $SRC_OVERLAY" 
+      echo "Promotion to: $DST_OVERLAY" 
+
+      SRC_PATCH="components/${COMPONENT_NAME}/overlays/$SRC_OVERLAY/deployment-patch.yaml"
+      DST_PATCH="components/${COMPONENT_NAME}/overlays/$DST_OVERLAY/deployment-patch.yaml"
+      
+      git config --global user.email "rhtap@noreplay.com"
+      git config --global user.name "promotion-automation-handler" 
+
+      # Clone a fresh repo 
+      cd /workspace/output
+      gitops_repo_name=$(basename $PARAM_GITOPS_REPO_URL)
+      rm -rf ${gitops_repo_name}  
+      git clone ${PARAM_GITOPS_REPO_URL}
+      cd ${gitops_repo_name}   
+      git checkout $(params.target-branch)    
+      # Promotion is a copy of the overlay patch
+      # includes image as well, as replicas and other env specific config
+      cp $SRC_PATCH $DST_PATCH
+      if [[ -z $(git status -s) ]]; then 
+        echo "No changes found in $COMPONENT_NAME between ${SRC_OVERLAY} and ${DST_OVERLAY}" 
+        echo "Exiting..."  
+        exit 0
+      else 
+        echo "Changes being promoted in $COMPONENT_NAME from ${SRC_OVERLAY} to ${DST_OVERLAY}" 
+        git diff -U0 
+      fi 
+      git add .
+      git commit -m "Promoted ${SRC_OVERLAY} to ${DST_OVERLAY}"
+      git remote set-url origin $origin_with_auth
+      git push origin $(params.target-branch) 
