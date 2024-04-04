@@ -1,11 +1,11 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: initialize-namespace-
+  name: initialize-namespace
 spec: 
   template:         
     metadata:
-      generateName: initialize-namespace-  
+      name: initialize-namespace 
     spec: 
       serviceAccountName: pipeline
       containers:
