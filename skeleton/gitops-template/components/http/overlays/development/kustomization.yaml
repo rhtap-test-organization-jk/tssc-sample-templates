@@ -3,6 +3,7 @@ kind: Kustomization
 patchesStrategicMerge:
 - deployment-patch.yaml
 resources:
+- ../../infra 
 - ../../base 
 - gitops-repository.yaml
 - source-repository.yaml
