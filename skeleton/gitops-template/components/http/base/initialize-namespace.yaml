@@ -3,10 +3,11 @@ kind: Job
 metadata:
   name: initialize-namespace
 spec: 
+  ttlSecondsAfterFinished: 3
   template:         
     metadata:
       name: initialize-namespace 
-    spec: 
+    spec:  
       serviceAccountName: pipeline
       containers:
       - name: initialize-namespace
