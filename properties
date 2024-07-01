@@ -7,7 +7,7 @@ export QUAY__DEFAULT__HOST=quay.io
 export PIPELINE__REPO__URL=https://github.com/redhat-appstudio/tssc-sample-pipelines
 export PIPELINE__REPO__BRANCH=v1.0.x
 
-export DEFAULT__DEPLOYMENT__NAMESPACE__PREFIX=rhtap-app
+export DEFAULT__DEPLOYMENT__NAMESPACE__PREFIX=rhtap-test-organization-jk-app
 
 export RHTAP__DEFAULT__NAMESPACE=rhtap
 export ARGOCD__DEFAULT__NAMESPACE=rhtap
