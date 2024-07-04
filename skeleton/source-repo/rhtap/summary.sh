@@ -27,4 +27,5 @@ function appstudio-summary() {
 
 # Task Steps 
 appstudio-summary
+tree $BASE_RESULTS
 exit_with_success_result
