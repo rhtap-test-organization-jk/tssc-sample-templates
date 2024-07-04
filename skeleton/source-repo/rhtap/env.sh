@@ -2,9 +2,8 @@
 export REBUILD=true
 export SKIP_CHECKS=true 
 
-# from buildah-rhtap
-TAG=$(date +%s)
-export IMAGE_URL=${{ values.image }}:jenkins-$TAG
+# from buildah-rhtap 
+export IMAGE_URL=${{ values.image }}:jenkins-$BUILD_NUMBER
 export IMAGE=$IMAGE_URL
 export RESULT_PATH=$DIR/results/temp/files/sbom-url
 #export XDG_RUNTIME_DIR=/home/john/dev/auth-creds
