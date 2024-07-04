@@ -31,8 +31,9 @@ function patch-gitops() {
 	git config --global user.email "rhtap@noreplay.com"
 	git config --global user.name "gitops-update"
 	
-	git clone ${PARAM_GITOPS_REPO_URL}
 	gitops_repo_name=$(basename ${gitops_repo_url})
+	rm -rf $gitops_repo_name
+	git clone ${PARAM_GITOPS_REPO_URL}
 	cd ${gitops_repo_name}
 	
 	component_name=$(yq .metadata.name application.yaml)
