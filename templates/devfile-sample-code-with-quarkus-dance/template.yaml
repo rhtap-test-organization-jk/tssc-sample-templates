@@ -65,6 +65,7 @@ spec:
           oneOf:
             - required:
                 - githubServer
+                - ciType
               properties:
                 hostType:
                     const: GitHub
@@ -76,17 +77,18 @@ spec:
                 ciType:
                   title: CI Provider
                   type: string
-                  defaut: tekton
+                  default: tekton
                   enum:
                     - tekton
                     - jenkins
-                    - gha 
+                    - github-actions
                   enumNames:
-                    - Tekton (SLSA3)
-                    - Jenkins (SLAS2)
-                    - Github Actions (SLAS2)
+                    - Tekton (SLSA 3)
+                    - Jenkins (SLSA 2)
+                    - Github Actions (SLSA 2)
             - required:
                 - gitlabServer
+                - ciType
               properties:
                 hostType:
                     const: GitLab
@@ -98,15 +100,15 @@ spec:
                 ciType:
                   title: CI Provider
                   type: string
-                  defaut: tekton
+                  default: tekton
                   enum:
                     - tekton
                     - jenkins
-                    - glabci 
+                    - gitlab-ci 
                   enumNames:
-                    - Tekton (SLSA3)
-                    - Jenkins (SLAS2)
-                    - Gitlab CI (SLAS2)
+                    - Tekton (SLSA 3)
+                    - Jenkins (SLSA 2)
+                    - Gitlab CI (SLSA 2)
     - title: Deployment information
       required:
         - imageRegistry
