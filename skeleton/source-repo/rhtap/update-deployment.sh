@@ -3,10 +3,7 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # summary
 source $SCRIPTDIR/common.sh
 
-# Top level parameters 
-export UPDATE_DEPLOYMENT_PARAM_GITOPS_REPO_URL=
-export UPDATE_DEPLOYMENT_PARAM_IMAGE=
-export UPDATE_DEPLOYMENT_PARAM_GITOPS_AUTH_SECRET_NAME=
+# Top level parameters     
 
 
 function patch-gitops() {

@@ -18,7 +18,7 @@ export BUILD_ARGS_FILE=""
 export ROX_CENTRAL_ENDPOINT=
 export ROX_API_TOKEN= 
 export PARAM_INSECURE_SKIP_TLS_VERIFY=true 
-export PARAM_GITOPS_REPO_URL=
+export PARAM_GITOPS_REPO_URL=${{ values.repoURL }}
 
 export PARAM_IMAGE=$IMAGE
 export PARAM_IMAGE_DIGEST=latest
