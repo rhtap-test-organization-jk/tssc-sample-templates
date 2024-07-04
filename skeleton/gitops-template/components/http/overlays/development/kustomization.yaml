@@ -4,7 +4,5 @@ patchesStrategicMerge:
 - deployment-patch.yaml
 resources:
 - ../../base 
-  {%- if values.isTekton %}
 - gitops-repository.yaml
 - source-repository.yaml
-  {%- endif %}
