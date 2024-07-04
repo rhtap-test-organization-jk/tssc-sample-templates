@@ -60,13 +60,6 @@ spec:
           title: Repository Default Branch
           type: string
           default: main
-        ciType:
-          title: CI Provider
-          type: string
-          enum:
-            - Tekton
-            - Jenkins
-          defaut: Tekton
       dependencies:
         hostType:
           oneOf:
@@ -80,6 +73,14 @@ spec:
                   type: string
                   default: ${GITHUB__DEFAULT__HOST}
                   ui:help: "You can also provide the on-prem github server, example: github-github.apps.cluster-ljg9z.sandbox219.opentlc.com"
+                ciType:
+                  title: CI Provider
+                  type: string
+                  enum:
+                    - Tekton
+                    - Jenkins
+                    - Github Actions
+                  defaut: Tekton
             - required:
                 - gitlabServer
               properties:
@@ -90,6 +91,14 @@ spec:
                   type: string
                   default: ${GITLAB__DEFAULT__HOST}
                   ui:help: "You can also provide the on-prem gitlab server, example: gitlab-gitlab.apps.cluster-ljg9z.sandbox219.opentlc.com"
+                ciType:
+                  title: CI Provider
+                  type: string
+                  enum:
+                    - Tekton
+                    - Jenkins 
+                    - Gitlab CI
+                  defaut: Tekton
     - title: Deployment information
       required:
         - imageRegistry
