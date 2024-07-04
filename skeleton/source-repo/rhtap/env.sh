@@ -3,7 +3,7 @@ export REBUILD=true
 export SKIP_CHECKS=true 
 
 # from buildah-rhtap
-TAG=$(git rev-parse --short main)
+TAG=$(git rev-parse HEAD)
 export IMAGE_URL=${{ values.image }}:jenkins-$TAG
 export IMAGE=$IMAGE_URL
 export RESULT_PATH=$DIR/results/temp/files/sbom-url
