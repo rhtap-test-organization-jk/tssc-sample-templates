@@ -77,10 +77,14 @@ spec:
                   title: CI Provider
                   type: string
                   enum:
-                    - Tekton
-                    - Jenkins
-                    - Github Actions
-                  defaut: Tekton
+                    - tekton
+                    - jenkins
+                    - gha 
+                  enumNames:
+                    - Tekton (SLSA3)
+                    - Jenkins (SLAS2)
+                    - Github Actions (SLAS2)
+                  defaut: tekton
             - required:
                 - gitlabServer
               properties:
@@ -95,10 +99,14 @@ spec:
                   title: CI Provider
                   type: string
                   enum:
-                    - Tekton
-                    - Jenkins 
-                    - Gitlab CI
-                  defaut: Tekton
+                    - tekton
+                    - jenkins
+                    - glabci 
+                  enumNames:
+                    - Tekton (SLSA3)
+                    - Jenkins (SLAS2)
+                    - Gitlab CI (SLAS2)
+                  defaut: tekton
     - title: Deployment information
       required:
         - imageRegistry
