@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tssc-sample-templates
+  annotations:
+    github.com/project-slug: rhtap-test-organization-jk/tssc-sample-templates
+spec:
+  type: other
+  lifecycle: unknown
+  owner: jkopriva
