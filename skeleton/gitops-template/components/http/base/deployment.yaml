@@ -22,6 +22,8 @@ spec:
       labels:
         app.kubernetes.io/instance:  ${{ values.name }}
     spec:
+      securityContext:
+        allowPrivilegeEscalation: false
       containers:
       - image: ${{ values.image }}
         imagePullPolicy: Always
