@@ -70,7 +70,7 @@ spec:
                   title: Repository Owner
                   type: string
                   ui:help: The organization, user or project that this repo will belong to
-                  
+                  default: rhtap-test-organization-jk
                 ghHost:
                   title: Repository Server
                   type: string
@@ -100,7 +100,7 @@ spec:
                   title: Repository Owner
                   type: string
                   ui:help: The organization, user or project that this repo will belong to
-                  
+                  default: rhtap-test-organization-jk
                 glHost:
                   title: Repository Server
                   type: string
@@ -173,7 +173,7 @@ spec:
           title: Image Organization
           type: string
           description: The organization, user or project that this repo will belong to
-          
+          default: rhtap-test-organization-jk
         imageName:
           title: Image Name
           type: string
